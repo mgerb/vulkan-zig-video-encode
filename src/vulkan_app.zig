@@ -1,7 +1,7 @@
 const std = @import("std");
 const print = std.debug.print;
 const vk = @import("vulkan");
-const VideoEncoder = @import("./videoencoder.zig").VideoEncoder;
+const VideoEncoder = @import("./video_encoder.zig").VideoEncoder;
 
 const DEBUG = true;
 const FPS = 30;

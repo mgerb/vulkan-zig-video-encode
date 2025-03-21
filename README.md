@@ -25,6 +25,7 @@ vulkan_zig_video_encode.exe
 ## Compiling
 
 I've on compiled this on Linux, but it could probably be done on Windows without too much effort.
+There are a few Vulkan validation warnings that need to be cleaned up, but it is still working.
 
 ### NixOS
 

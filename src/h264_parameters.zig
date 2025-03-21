@@ -152,7 +152,6 @@ pub const FrameInfo = struct {
         if (!is_i) {
             self.reference_lists.ref_pic_list_0[0] = @intFromBool((gop_frame_count & 1) == 0);
         }
-        std.debug.print("ref: {any}\n", .{self.reference_lists.ref_pic_list_0});
         self.std_picture_info.p_ref_lists = &self.reference_lists;
 
         self.encode_h264_frame_info.s_type = .video_encode_h264_picture_info_khr;

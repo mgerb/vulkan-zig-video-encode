@@ -173,7 +173,6 @@ pub const VideoEncoder = struct {
 
         try self.allocateIntermediateImage();
         errdefer self.destroyIntermediateImages();
-        print("----------\n\n", .{});
 
         try self.createOutputQueryPool();
         errdefer self.device.destroyQueryPool(self.query_pool.?, null);
@@ -999,12 +998,8 @@ pub const VideoEncoder = struct {
     }
 
     pub fn queueEncode(self: *Self, current_image_ix: u32) !void {
-        print("convertRGBtoYCbCr\n", .{});
         try self.convertRGBtoYCbCr(current_image_ix);
-        print("convertRGBtoYCbCr done\n", .{});
-        print("encodeVideoFrame\n", .{});
         try self.encodeVideoFrame();
-        print("encodeVideoFrame done\n", .{});
         self.running = true;
     }
 
@@ -1057,7 +1052,6 @@ pub const VideoEncoder = struct {
         image_memory_barrier.src_stage_mask = .{ .color_attachment_output_bit = true };
         image_memory_barrier.src_access_mask = .{ .color_attachment_write_bit = true };
         image_memory_barrier.old_layout = .color_attachment_optimal;
-        print("current_image_ix: {}\n", .{current_image_ix});
         image_memory_barrier.image = self.input_images.items[current_image_ix];
         image_memory_barrier.dst_access_mask = .{ .shader_storage_read_bit = true };
         image_memory_barrier.subresource_range.aspect_mask = .{ .color_bit = true };
@@ -1132,7 +1126,6 @@ pub const VideoEncoder = struct {
 
         try self.device.beginCommandBuffer(self.encode_command_buffer.?, &begin_info);
 
-        print("cmdResetQueryPool\n", .{});
         const query_slot_id = 0;
         self.device.cmdResetQueryPool(self.encode_command_buffer.?, self.query_pool.?, query_slot_id, 1);
 
@@ -1191,7 +1184,6 @@ pub const VideoEncoder = struct {
             .p_reference_slots = &referense_slots,
         };
 
-        print("cmdBeginVideoCodingKHR\n", .{});
         self.device.cmdBeginVideoCodingKHR(self.encode_command_buffer.?, &encode_begin_info);
 
         // transition the YCbCr image to be a video encode source
@@ -1219,7 +1211,6 @@ pub const VideoEncoder = struct {
             .p_image_memory_barriers = @ptrCast(&image_memory_barrier),
         };
 
-        print("cmdPipelineBarrier2\n", .{});
         self.device.cmdPipelineBarrier2(self.encode_command_buffer.?, &dependency_info);
 
         const input_pic_resource = vk.VideoPictureResourceInfoKHR{
@@ -1261,20 +1252,15 @@ pub const VideoEncoder = struct {
         }
 
         // prepare the query pool for the resulting bitstream
-        print("cmdBeginQuery\n", .{});
         self.device.cmdBeginQuery(self.encode_command_buffer.?, self.query_pool.?, query_slot_id, .{});
         // encode the frame as video
-        print("cmdEncodeVideoKHR\n", .{});
         self.device.cmdEncodeVideoKHR(self.encode_command_buffer.?, &video_encode_info);
         // end the query for the result
-        print("cmdEndQuery\n", .{});
         self.device.cmdEndQuery(self.encode_command_buffer.?, self.query_pool.?, query_slot_id);
         // finish the video session
-        print("cmdEndVideoCodingKHR\n", .{});
         self.device.cmdEndVideoCodingKHR(self.encode_command_buffer.?, &.{});
 
         // run the encoding
-        print("endCommandBuffer\n", .{});
         try self.device.endCommandBuffer(self.encode_command_buffer.?);
 
         const dst_stage_mask = vk.PipelineStageFlags{
@@ -1289,9 +1275,7 @@ pub const VideoEncoder = struct {
             .signal_semaphore_count = 1,
             .p_signal_semaphores = @ptrCast(&self.inter_queue_semaphore2.?),
         };
-        print("resetFences\n", .{});
         try self.device.resetFences(1, @ptrCast(&self.encode_finished_fence.?));
-        print("queueSubmit\n", .{});
         try self.device.queueSubmit(self.encode_queue, 1, @ptrCast(&submit_info), self.encode_finished_fence.?);
     }
 

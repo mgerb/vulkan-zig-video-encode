@@ -9,10 +9,10 @@ pub fn main() !void {
     const allocator = arena.allocator();
 
     const start_time = std.time.nanoTimestamp();
-    const m = try VulkanApp.init(allocator, 800, 600);
-    defer m.deinit();
+    const vulkan_app = try VulkanApp.init(allocator, 800, 600);
+    defer vulkan_app.deinit();
 
-    try m.mainLoop();
+    try vulkan_app.mainLoop();
 
     util.printElapsed(start_time);
 }
